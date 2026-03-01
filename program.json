@@ -1,0 +1,18 @@
+{
+    "program_name": "2SP LiDAR Calculator App",
+    "program_version": "0.1.0",
+    "program_description": "Cross-platform Desktop Application for LiDAR and Photogrammetry Mission Planning calculations.",
+    "program_author": "Leo L.",
+    "program_email": "twosigmaplus@gmail.com",
+    "program_license": "CC BY-NC",
+    "program_status": "Development",
+    "program_date": "2026-02-28",
+    "program_entry_point": "src/main.py",
+    "program_python_version": ">=3.12",
+    "branding": {
+        "suite": "2SP Professional Tools",
+        "visual_identity": "Yellow on Black",
+        "primary_color": "#FFE500",
+        "background_color": "#000000"
+    }
+}
