@@ -1,0 +1,365 @@
+{
+  "lidar_modules": [
+    {
+      "id": "hesai_xt32_m2x",
+      "manufacturer": "Hesai",
+      "model": "XT32-M2X",
+      "type": "mechanical_rotating",
+      "laser_channels": 32,
+      "laser_wavelength_nm": 905,
+      "laser_class": "Class 1",
+      "horizontal_fov_deg": 360.0,
+      "vertical_fov_deg": 40.3,
+      "vertical_fov_range_deg": [-20.8, 19.5],
+      "vertical_resolution_deg": 1.3,
+      "min_range_m": 0.5,
+      "max_instrument_range_m": 300,
+      "range_accuracy_cm": 1.0,
+      "range_precision_cm": 0.5,
+      "weight_g": 495,
+      "configurations": [
+        {
+          "name": "Single Return @ 10 Hz",
+          "pulse_repetition_rate_khz": 640,
+          "max_returns": 1,
+          "points_per_second": 640000,
+          "max_range_at_10pct_reflectivity_m": 80,
+          "horizontal_resolution_deg": 0.18,
+          "frame_rate_hz": 10
+        },
+        {
+          "name": "Dual Return @ 10 Hz",
+          "pulse_repetition_rate_khz": 640,
+          "max_returns": 2,
+          "points_per_second": 1280000,
+          "max_range_at_10pct_reflectivity_m": 80,
+          "horizontal_resolution_deg": 0.18,
+          "frame_rate_hz": 10
+        },
+        {
+          "name": "Triple Return @ 10 Hz",
+          "pulse_repetition_rate_khz": 640,
+          "max_returns": 3,
+          "points_per_second": 1920000,
+          "max_range_at_10pct_reflectivity_m": 80,
+          "horizontal_resolution_deg": 0.18,
+          "frame_rate_hz": 10
+        },
+        {
+          "name": "Single Return @ 5 Hz",
+          "pulse_repetition_rate_khz": 640,
+          "max_returns": 1,
+          "points_per_second": 640000,
+          "max_range_at_10pct_reflectivity_m": 80,
+          "horizontal_resolution_deg": 0.09,
+          "frame_rate_hz": 5
+        },
+        {
+          "name": "Single Return @ 20 Hz",
+          "pulse_repetition_rate_khz": 640,
+          "max_returns": 1,
+          "points_per_second": 640000,
+          "max_range_at_10pct_reflectivity_m": 80,
+          "horizontal_resolution_deg": 0.36,
+          "frame_rate_hz": 20
+        }
+      ]
+    },
+    {
+      "id": "riegl_minivux_3uav",
+      "manufacturer": "RIEGL",
+      "model": "miniVUX-3UAV",
+      "type": "rotating_mirror",
+      "laser_channels": 1,
+      "laser_wavelength_nm": null,
+      "laser_wavelength_band": "near infrared",
+      "laser_class": "Class 1",
+      "laser_beam_divergence_mrad": [1.6, 0.5],
+      "min_range_m": 2,
+      "range_accuracy_mm": 15,
+      "range_precision_mm": 10,
+      "scan_speed_scans_per_sec_range": [10, 100],
+      "angular_step_width_deg_range": [0.018, 0.36],
+      "angle_measurement_resolution_deg": 0.001,
+      "weight_kg": 1.55,
+      "power_w": 18,
+      "configurations": [
+        {
+          "name": "100 kHz Program",
+          "pulse_repetition_rate_khz": 100,
+          "effective_measurement_rate_khz": 100,
+          "horizontal_fov_deg": 360,
+          "max_range_at_20pct_reflectivity_m": 170,
+          "max_range_at_60pct_reflectivity_m": 290,
+          "max_range_at_80pct_reflectivity_m": 330,
+          "max_returns_per_pulse": 5,
+          "recommended_agl_20pct_m": 100,
+          "recommended_agl_60pct_m": 160,
+          "scan_speed_range": [10, 100]
+        },
+        {
+          "name": "200 kHz Program (Reduced Power)",
+          "pulse_repetition_rate_khz": 200,
+          "effective_measurement_rate_khz": 200,
+          "horizontal_fov_deg": 360,
+          "max_range_at_20pct_reflectivity_m": 150,
+          "max_range_at_60pct_reflectivity_m": 250,
+          "max_range_at_80pct_reflectivity_m": 280,
+          "max_returns_per_pulse": 5,
+          "recommended_agl_20pct_m": 85,
+          "recommended_agl_60pct_m": 140,
+          "scan_speed_range": [10, 100]
+        },
+        {
+          "name": "200 kHz Program",
+          "pulse_repetition_rate_khz": 200,
+          "effective_measurement_rate_khz": 200,
+          "horizontal_fov_deg": 180,
+          "max_range_at_20pct_reflectivity_m": 170,
+          "max_range_at_60pct_reflectivity_m": 290,
+          "max_range_at_80pct_reflectivity_m": 330,
+          "max_returns_per_pulse": 5,
+          "recommended_agl_20pct_m": 100,
+          "recommended_agl_60pct_m": 160,
+          "scan_speed_range": [20, 100]
+        },
+        {
+          "name": "300 kHz Program",
+          "pulse_repetition_rate_khz": 300,
+          "effective_measurement_rate_khz": 300,
+          "horizontal_fov_deg": 120,
+          "max_range_at_20pct_reflectivity_m": 170,
+          "max_range_at_60pct_reflectivity_m": 290,
+          "max_range_at_80pct_reflectivity_m": 330,
+          "max_returns_per_pulse": 5,
+          "recommended_agl_20pct_m": 100,
+          "recommended_agl_60pct_m": 160,
+          "scan_speed_range": [30, 100]
+        }
+      ]
+    },
+    {
+      "id": "teledyne_echoone",
+      "manufacturer": "Teledyne Geospatial",
+      "model": "EchoONE",
+      "type": "scanning",
+      "laser_channels": 1,
+      "laser_wavelength_nm": 1535,
+      "laser_class": "Class 1",
+      "laser_beam_divergence_mrad": 0.5,
+      "horizontal_fov_deg": 90,
+      "vertical_scan_lines_deg": [-10, -4, 4, 10],
+      "min_range_m": 3.0,
+      "range_accuracy_mm": 10,
+      "range_precision_mm": 5,
+      "lines_per_second_max": 250,
+      "weight_kg": 1.65,
+      "power_w_nominal": 75,
+      "configurations": [
+        {
+          "name": "400 kHz Mode",
+          "pulse_repetition_rate_khz": 400,
+          "effective_measurement_rate_khz": 316,
+          "max_range_at_20pct_reflectivity_m": 270,
+          "max_operating_altitude_20pct_m": 175,
+          "max_returns_per_pulse": 8
+        },
+        {
+          "name": "600 kHz Mode",
+          "pulse_repetition_rate_khz": 600,
+          "effective_measurement_rate_khz": 474,
+          "max_range_at_20pct_reflectivity_m": 220,
+          "max_operating_altitude_20pct_m": 130,
+          "max_returns_per_pulse": 8
+        }
+      ]
+    },
+    {
+      "id": "dji_l3_lidar",
+      "manufacturer": "DJI",
+      "model": "Zenmuse L3 LiDAR",
+      "type": "hybrid_scanning",
+      "laser_channels": 1,
+      "laser_wavelength_nm": 1535,
+      "laser_class": "Class 1",
+      "laser_beam_divergence_mrad": 0.25,
+      "horizontal_fov_deg": 80,
+      "min_range_m": 10,
+      "ranging_accuracy_mm": 10,
+      "ranging_repeatability_mm": 5,
+      "scan_modes": ["Linear", "Star-Shaped", "Non-Repetitive"],
+      "scan_mode_fov": {
+        "linear": {"horizontal_deg": 80, "vertical_deg": 3},
+        "star_shaped": {"horizontal_deg": 80, "vertical_deg": 80},
+        "non_repetitive": {"horizontal_deg": 80, "vertical_deg": 80}
+      },
+      "configurations": [
+        {
+          "name": "100 kHz",
+          "pulse_repetition_rate_khz": 100,
+          "max_range_at_10pct_reflectivity_m": 950,
+          "max_range_at_80pct_reflectivity_m": 2000,
+          "max_returns_per_pulse": 16,
+          "recommended_max_altitude_m": 500
+        },
+        {
+          "name": "350 kHz",
+          "pulse_repetition_rate_khz": 350,
+          "max_range_at_10pct_reflectivity_m": 700,
+          "max_range_at_80pct_reflectivity_m": null,
+          "max_returns_per_pulse": 16,
+          "recommended_max_altitude_m": 300
+        },
+        {
+          "name": "1000 kHz (1 MHz)",
+          "pulse_repetition_rate_khz": 1000,
+          "max_range_at_10pct_reflectivity_m": 400,
+          "max_range_at_80pct_reflectivity_m": null,
+          "max_returns_per_pulse": 8,
+          "recommended_max_altitude_m": 100
+        },
+        {
+          "name": "2000 kHz (2 MHz)",
+          "pulse_repetition_rate_khz": 2000,
+          "max_range_at_10pct_reflectivity_m": 290,
+          "max_range_at_80pct_reflectivity_m": null,
+          "max_returns_per_pulse": 4,
+          "recommended_max_altitude_m": 50
+        }
+      ]
+    }
+  ],
+
+  "camera_modules": [
+    {
+      "id": "sony_a5100",
+      "manufacturer": "Sony",
+      "model": "a5100",
+      "sensor_type": "APS-C CMOS",
+      "sensor_width_mm": 23.5,
+      "sensor_height_mm": 15.6,
+      "image_width_px": 6000,
+      "image_height_px": 4000,
+      "megapixels": 24,
+      "lens_configurations": [
+        {
+          "name": "16mm Lens",
+          "focal_length_mm": 16.0
+        },
+        {
+          "name": "24mm Lens",
+          "focal_length_mm": 24.0
+        }
+      ]
+    },
+    {
+      "id": "dji_l3_rgb",
+      "manufacturer": "DJI",
+      "model": "L3 Integrated Dual RGB",
+      "sensor_type": "4/3 CMOS",
+      "sensor_width_mm": 17.3,
+      "sensor_height_mm": 13.0,
+      "image_width_px": 12288,
+      "image_height_px": 8192,
+      "megapixels": 100,
+      "combined_horizontal_fov_deg": 107,
+      "notes": "Dual 100MP cameras with 45° optical axis angle, composable to 107° combined HFOV",
+      "lens_configurations": [
+        {
+          "name": "Integrated 28mm Eq. Lens",
+          "focal_length_mm": 28.0,
+          "fov_diagonal_deg": 73.3,
+          "fov_horizontal_deg": 62.0,
+          "fov_vertical_deg": 41.2,
+          "aperture_range": "f/2.0 - f/11"
+        }
+      ],
+      "photo_sizes": [
+        {"name": "100 MP", "width_px": 12288, "height_px": 8192},
+        {"name": "25 MP", "width_px": 6144, "height_px": 4096}
+      ]
+    },
+    {
+      "id": "resepi_internal_5mp",
+      "manufacturer": "Teledyne Geospatial",
+      "model": "EchoONE Internal Camera",
+      "sensor_type": "Global Shutter",
+      "megapixels": 5,
+      "fov_deg": 80,
+      "notes": "Integrated 5MP global shutter camera for colorization. Optional external Sony ILX-LR1 61MP available.",
+      "lens_configurations": [
+        {
+          "name": "Integrated Lens",
+          "focal_length_mm": null,
+          "fov_deg": 80
+        }
+      ]
+    }
+  ],
+
+  "pos_modules": [
+    {
+      "id": "applanix_apx15",
+      "manufacturer": "Applanix",
+      "model": "APX-15 UAV",
+      "pitch_roll_accuracy_deg": 0.025,
+      "heading_accuracy_deg": 0.08,
+      "position_accuracy_h_m": 0.02,
+      "position_accuracy_v_m": null,
+      "gnss_constellations": ["GPS", "GLONASS", "Galileo", "BeiDou"],
+      "notes": "Common pairing with RIEGL miniVUX-3UAV"
+    },
+    {
+      "id": "pos_dji_l3",
+      "manufacturer": "DJI",
+      "model": "L3 Integrated INS",
+      "pitch_roll_accuracy_deg": 0.01,
+      "heading_accuracy_deg": 0.02,
+      "position_accuracy_h_m": 0.01,
+      "position_accuracy_v_m": 0.015,
+      "gnss_update_rate_hz": 5,
+      "pos_update_rate_hz": 200,
+      "notes": "Post-processed (PPK) accuracy at 1σ. RTK: H 1.0cm+1ppm, V 1.5cm+1ppm"
+    },
+    {
+      "id": "resepi_kernel210",
+      "manufacturer": "Inertial Labs",
+      "model": "KERNEL-210",
+      "pitch_roll_accuracy_deg_rtk": 0.03,
+      "pitch_roll_accuracy_deg_ppk": 0.006,
+      "heading_accuracy_deg_rtk": 0.08,
+      "heading_accuracy_deg_ppk": 0.03,
+      "gnss_constellations": ["GPS", "GLONASS", "Galileo", "BeiDou", "QZSS", "NavIC", "SBAS"],
+      "gnss_frequencies": ["L1", "L2", "L5"],
+      "notes": "Tactical grade IMU integrated in RESEPI EchoONE"
+    }
+  ],
+
+  "mapping_systems": [
+    {
+      "id": "resepi_echoone",
+      "manufacturer": "Teledyne Geospatial / Inertial Labs",
+      "system_name": "RESEPI EchoONE",
+      "lidar_module_id": "teledyne_echoone",
+      "camera_module_id": "resepi_internal_5mp",
+      "pos_module_id": "resepi_kernel210",
+      "total_weight_kg": 1.65,
+      "ndaa_compliant": true,
+      "onboard_storage_gb": 512,
+      "notes": "Integrated LiDAR scanning and mapping solution. Realtime georeferenced point cloud."
+    },
+    {
+      "id": "dji_zenmuse_l3",
+      "manufacturer": "DJI",
+      "system_name": "Zenmuse L3",
+      "lidar_module_id": "dji_l3_lidar",
+      "camera_module_id": "dji_l3_rgb",
+      "pos_module_id": "pos_dji_l3",
+      "total_weight_kg": 1.60,
+      "supported_aircraft": ["DJI Matrice 400"],
+      "power_w_typical": 64,
+      "power_w_max": 100,
+      "notes": "Fully integrated payload with dual 100MP RGB cameras and LiDAR"
+    }
+  ]
+}
