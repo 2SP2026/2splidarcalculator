@@ -296,4 +296,176 @@ def get_stylesheet() -> str:
         font-size: 11px;
         padding: 4px 12px;
     }}
+
+    /* ── Action Toolbar ─────────────────────────────────────── */
+    #action_toolbar {{
+        background: transparent;
+    }}
+
+    #action_btn {{
+        padding: 5px 12px;
+        border: 1px solid {c['border']};
+        border-radius: 5px;
+        background-color: {c['bg_card']};
+        font-size: 12px;
+        font-weight: 500;
+        color: {c['text_primary']};
+    }}
+
+    #action_btn:hover {{
+        background-color: {c['bg_secondary']};
+        border-color: {c['accent']};
+    }}
+
+    #action_btn:disabled {{
+        color: {c['text_tertiary']};
+        border-color: {c['border_light']};
+    }}
+
+    #action_btn_danger {{
+        padding: 5px 12px;
+        border: 1px solid {c['border']};
+        border-radius: 5px;
+        background-color: {c['bg_card']};
+        font-size: 12px;
+        font-weight: 500;
+        color: #B04040;
+    }}
+
+    #action_btn_danger:hover {{
+        background-color: #FDF0F0;
+        border-color: #B04040;
+    }}
+
+    #action_btn_danger:disabled {{
+        color: {c['text_tertiary']};
+        border-color: {c['border_light']};
+    }}
+
+    /* ── Edit Dialog ────────────────────────────────────────── */
+    QDialog {{
+        background-color: {c['bg_primary']};
+    }}
+
+    #dialog_header {{
+        background-color: {c['bg_card']};
+        border-bottom: 1px solid {c['border']};
+    }}
+
+    #dialog_title {{
+        font-family: '{f['heading']}', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: {c['text_primary']};
+    }}
+
+    #dialog_footer {{
+        background-color: {c['bg_secondary']};
+        border-top: 1px solid {c['border']};
+    }}
+
+    #form_group {{
+        font-family: '{f['heading']}', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: {c['text_secondary']};
+        border: 1px solid {c['border_light']};
+        border-radius: 8px;
+        padding: 12px;
+        background-color: {c['bg_card']};
+    }}
+
+    #form_group::title {{
+        subcontrol-origin: margin;
+        subcontrol-position: top left;
+        padding: 0 8px;
+        color: {c['accent']};
+    }}
+
+    #form_input {{
+        padding: 6px 10px;
+        border: 1px solid {c['border']};
+        border-radius: 5px;
+        background-color: {c['bg_card']};
+        font-size: 13px;
+        color: {c['text_primary']};
+    }}
+
+    #form_input:focus {{
+        border-color: {c['accent']};
+    }}
+
+    QDoubleSpinBox, QSpinBox {{
+        padding: 6px 10px;
+        border: 1px solid {c['border']};
+        border-radius: 5px;
+        background-color: {c['bg_card']};
+        font-size: 13px;
+        color: {c['text_primary']};
+    }}
+
+    QComboBox {{
+        padding: 6px 10px;
+        border: 1px solid {c['border']};
+        border-radius: 5px;
+        background-color: {c['bg_card']};
+        font-size: 13px;
+        color: {c['text_primary']};
+    }}
+
+    QComboBox:focus {{
+        border-color: {c['accent']};
+    }}
+
+    QComboBox::drop-down {{
+        border: none;
+        width: 24px;
+    }}
+
+    QComboBox QAbstractItemView {{
+        background-color: {c['bg_card']};
+        border: 1px solid {c['border']};
+        selection-background-color: {c['accent_subtle']};
+        selection-color: {c['text_primary']};
+    }}
+
+    #btn_save {{
+        padding: 8px 24px;
+        border: none;
+        border-radius: 6px;
+        background-color: {c['accent']};
+        color: {c['text_on_accent']};
+        font-size: 13px;
+        font-weight: 600;
+    }}
+
+    #btn_save:hover {{
+        background-color: {c['accent_hover']};
+    }}
+
+    #btn_cancel {{
+        padding: 8px 20px;
+        border: 1px solid {c['border']};
+        border-radius: 6px;
+        background-color: {c['bg_card']};
+        color: {c['text_secondary']};
+        font-size: 13px;
+        font-weight: 500;
+    }}
+
+    #btn_cancel:hover {{
+        background-color: {c['bg_secondary']};
+    }}
+
+    /* ── Array Edit Table ──────────────────────────────────── */
+    #array_edit_table {{
+        background-color: {c['bg_card']};
+        border: 1px solid {c['border_light']};
+        border-radius: 6px;
+        font-size: 12px;
+    }}
+
+    #array_edit_table::item {{
+        padding: 4px 8px;
+    }}
     """

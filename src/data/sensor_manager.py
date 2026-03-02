@@ -5,10 +5,12 @@ Reads and writes to sensors.json — the local JSON sensor library.
 """
 
 import json
+import re
 from pathlib import Path
 from typing import Optional
 
 from loguru import logger
+from PySide6.QtCore import QObject, Signal
 
 
 # Default path to the sensor database, relative to this file
@@ -26,10 +28,14 @@ CATEGORY_LABELS = {
 }
 
 
-class SensorManager:
+class SensorManager(QObject):
     """Load, query, and manage the sensor JSON database."""
 
-    def __init__(self, db_path: Optional[Path] = None):
+    # Emitted after any mutation (add / update / delete)
+    data_changed = Signal()
+
+    def __init__(self, db_path: Optional[Path] = None, parent=None):
+        super().__init__(parent)
         self.db_path = db_path or _DEFAULT_DB_PATH
         self._data: dict = {}
         self.load()
@@ -81,6 +87,111 @@ class SensorManager:
     def get_all_ids(self, category: str) -> list[str]:
         """Return a list of all IDs in a category."""
         return [m["id"] for m in self.get_modules(category) if "id" in m]
+
+    # ------------------------------------------------------------------
+    # CRUD mutations
+    # ------------------------------------------------------------------
+
+    def generate_id(self, manufacturer: str, model: str) -> str:
+        """
+        Auto-generate a slug ID from manufacturer + model.
+
+        Example: 'Hesai', 'XT32-M2X' → 'hesai_xt32_m2x'
+        Appends _2, _3 etc. if the ID already exists across all categories.
+        """
+        raw = f"{manufacturer}_{model}".lower()
+        slug = re.sub(r"[^a-z0-9]+", "_", raw).strip("_")
+
+        # De-duplicate across all categories
+        all_ids = set()
+        for cat in CATEGORIES:
+            all_ids.update(self.get_all_ids(cat))
+
+        if slug not in all_ids:
+            return slug
+
+        counter = 2
+        while f"{slug}_{counter}" in all_ids:
+            counter += 1
+        return f"{slug}_{counter}"
+
+    def add_module(self, category: str, data: dict) -> str:
+        """
+        Add a new module to a category. Returns the assigned ID.
+
+        The 'id' key is auto-generated if not present.
+        Saves to disk and emits data_changed.
+        """
+        if "id" not in data:
+            manufacturer = data.get("manufacturer", "unknown")
+            model = data.get("model", data.get("system_name", "unknown"))
+            data["id"] = self.generate_id(manufacturer, model)
+
+        self._data.setdefault(category, []).append(data)
+        self.save()
+        self.data_changed.emit()
+        logger.info(f"Added '{data['id']}' to {category}")
+        return data["id"]
+
+    def update_module(self, category: str, module_id: str, data: dict) -> bool:
+        """
+        Replace an existing module's data in-place.
+
+        The 'id' field in data is forced to match module_id.
+        Saves to disk and emits data_changed. Returns True on success.
+        """
+        modules = self.get_modules(category)
+        for i, module in enumerate(modules):
+            if module.get("id") == module_id:
+                data["id"] = module_id  # Preserve original ID
+                modules[i] = data
+                self.save()
+                self.data_changed.emit()
+                logger.info(f"Updated '{module_id}' in {category}")
+                return True
+        logger.warning(f"Module '{module_id}' not found in {category} for update")
+        return False
+
+    def delete_module(self, category: str, module_id: str) -> bool:
+        """
+        Remove a module from a category.
+
+        Saves to disk and emits data_changed. Returns True on success.
+        """
+        modules = self.get_modules(category)
+        for i, module in enumerate(modules):
+            if module.get("id") == module_id:
+                modules.pop(i)
+                self.save()
+                self.data_changed.emit()
+                logger.info(f"Deleted '{module_id}' from {category}")
+                return True
+        logger.warning(f"Module '{module_id}' not found in {category} for deletion")
+        return False
+
+    def get_referencing_systems(self, category: str, module_id: str) -> list[str]:
+        """
+        Return a list of mapping system IDs that reference this module.
+
+        Used to warn before deleting a module that is part of a system.
+        """
+        if category == "mapping_systems":
+            return []
+
+        ref_key_map = {
+            "lidar_modules": "lidar_module_id",
+            "camera_modules": "camera_module_id",
+            "pos_modules": "pos_module_id",
+        }
+        ref_key = ref_key_map.get(category)
+        if not ref_key:
+            return []
+
+        refs = []
+        for system in self.get_modules("mapping_systems"):
+            if system.get(ref_key) == module_id:
+                refs.append(system.get("id", "?"))
+        return refs
 
     # ------------------------------------------------------------------
     # Mapping system resolution

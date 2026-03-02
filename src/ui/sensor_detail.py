@@ -39,6 +39,9 @@ _FIELD_LABELS = {
     "laser_wavelength_band": "Wavelength Band",
     "laser_class": "Laser Class",
     "laser_beam_divergence_mrad": "Beam Divergence (mrad)",
+    "laser_beam_divergence_cross_mrad": "Divergence Cross-Axis (mrad)",
+    "laser_beam_shape": "Beam Shape",
+    "laser_beam_divergence_method": "Divergence Method",
     "horizontal_fov_deg": "Horizontal FOV (°)",
     "vertical_fov_deg": "Vertical FOV (°)",
     "vertical_fov_range_deg": "Vertical FOV Range (°)",
@@ -126,7 +129,12 @@ class SensorDetail(QWidget):
     def __init__(self, manager: SensorManager, parent=None):
         super().__init__(parent)
         self.manager = manager
+        self._current_category: str | None = None
+        self._current_module_id: str | None = None
         self._build_ui()
+
+        # Auto-refresh when data changes
+        self.manager.data_changed.connect(self._on_data_changed)
 
     def _build_ui(self):
         # Outer scroll area
@@ -170,6 +178,9 @@ class SensorDetail(QWidget):
 
     def show_sensor(self, category: str, module_id: str):
         """Display the detail view for a given sensor."""
+        self._current_category = category
+        self._current_module_id = module_id
+
         module = self.manager.get_module_by_id(category, module_id)
         if module is None:
             self.title_label.setText("Sensor not found")
@@ -272,11 +283,12 @@ class SensorDetail(QWidget):
             val_item = QTableWidgetItem(val)
             table.setItem(i, 1, val_item)
 
-        # Size table to content
+        # Size table to content — capped at 280px to leave room for configs
         table.resizeRowsToContents()
         total_height = sum(table.rowHeight(r) for r in range(table.rowCount()))
         total_height += table.horizontalHeader().height() + 4
-        table.setFixedHeight(min(total_height, 600))
+        table.setFixedHeight(min(total_height, 280))
+        table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         self.specs_layout.addWidget(table)
 
@@ -312,10 +324,10 @@ class SensorDetail(QWidget):
         table.resizeColumnsToContents()
         table.resizeRowsToContents()
 
-        # Size to content
+        # Size to content — generous height for configs visibility
         total_height = sum(table.rowHeight(r) for r in range(table.rowCount()))
         total_height += table.horizontalHeader().height() + 4
-        table.setFixedHeight(min(total_height, 400))
+        table.setFixedHeight(min(total_height, 500))
 
         # Allow horizontal scrolling for wide tables
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
@@ -378,3 +390,8 @@ class SensorDetail(QWidget):
             row_layout.addStretch()
 
             self.specs_layout.addWidget(row_widget)
+
+    def _on_data_changed(self):
+        """Re-render the current sensor when data changes."""
+        if self._current_category and self._current_module_id:
+            self.show_sensor(self._current_category, self._current_module_id)

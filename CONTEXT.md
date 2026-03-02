@@ -41,12 +41,26 @@ Migrate the existing Excel-based "Leo's LiDAR Calculators" into a standalone, cr
 
 ## Next Steps (Session 3)
 
-1. **Sensor Library Editing (Phase 3d):**
-   - Enable add / edit / delete operations on sensor profiles via the GUI.
-   - Add form-based dialogs for creating new LiDAR, camera, POS, and mapping system entries.
-   - Persist changes back to `sensors.json` via `sensor_manager.save()`.
-2. **Calculator Core Logic (Phase 3c):**
+### Session 3 — Sensor Library Editing ✅
+- **SensorManager CRUD:** Refactored `SensorManager` to inherit `QObject`, added `data_changed` signal. Implemented `add_module`, `update_module`, `delete_module` with auto-save and signal emission. Added `generate_id` (slugified, collision-safe) and `get_referencing_systems` (delete safety check).
+- **SensorEditDialog:** New form-based dialog with a `FIELD_REGISTRY` for dynamic field generation per category. Supports `QLineEdit`, `QSpinBox`, `QDoubleSpinBox`, `QCheckBox`, `QComboBox`, and a generic `dropdown:` type for fixed-choice fields. Includes nested array editing (configurations, lens configs, photo sizes) via `QTableWidget` with add/remove row controls.
+- **Mapping System References:** Module reference fields (`lidar_module_id`, `camera_module_id`, `pos_module_id`) render as dropdowns populated from the corresponding category.
+- **Duplicate Feature:** 📋 Duplicate button clones an existing sensor's data into a new add-mode dialog. Duplicate name validation prevents saving entries with the same Model or System Name within a category.
+- **Beam Divergence Specs:** Added `laser_beam_shape` (circular/ellipsoidal dropdown), `laser_beam_divergence_method` (FWHM / 1/e² dropdown), and `laser_beam_divergence_cross_mrad` (conditionally visible for ellipsoidal beams only).
+- **UI Polish:** Action toolbar (Add, Duplicate, Edit, Delete) with enable/disable logic. Rebalanced detail panel and edit dialog layouts — specs table capped with scroll, configs table gets more vertical space. Input widths doubled, labels left-aligned.
+- **Auto-Refresh:** `data_changed` signal connected to sensor list, detail panel, and status bar — all update automatically after any mutation.
+- **Validation:** Required field checks, duplicate name prevention, and mapping system reference safety on delete.
+
+## Next Steps (Session 4)
+
+1. **Calculator Core Logic (Phase 3c):**
    - Port point-density (NPD) formula from the Excel reference into `src/core/`.
    - Port GSD formula.
    - Port FOV / AGL estimation.
-   - Wire calculators into the GUI (new "Calculators" sidebar panel).
+2. **Wire Calculators into GUI:**
+   - Create a new "Calculators" sidebar panel.
+   - Build input forms that reference sensors from the library.
+   - Display computed results with real-time updates.
+3. **Testing:**
+   - Unit tests for calculator formulas against known Excel outputs.
+   - Integration tests for sensor manager CRUD operations.

@@ -87,16 +87,20 @@ class MainWindow(QMainWindow):
 
         # ── Connect signals ──
         self.browser.sensor_selected.connect(self.detail.show_sensor)
+        self.manager.data_changed.connect(self._refresh_status_bar)
 
         # ── Status bar ──
-        status = QStatusBar()
-        self.setStatusBar(status)
+        self.status = QStatusBar()
+        self.setStatusBar(self.status)
+        self._refresh_status_bar()
 
+    def _refresh_status_bar(self):
+        """Update the status bar with the current sensor count."""
         total_sensors = sum(
             len(self.manager.get_modules(cat))
             for cat in ("lidar_modules", "camera_modules", "pos_modules", "mapping_systems")
         )
-        status.showMessage(f"Sensor Library  ·  {total_sensors} entries loaded")
+        self.status.showMessage(f"Sensor Library  ·  {total_sensors} entries loaded")
 
     def _build_sidebar(self) -> QWidget:
         """Build the dark sidebar with navigation."""
