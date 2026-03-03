@@ -51,16 +51,19 @@ Migrate the existing Excel-based "Leo's LiDAR Calculators" into a standalone, cr
 - **Auto-Refresh:** `data_changed` signal connected to sensor list, detail panel, and status bar — all update automatically after any mutation.
 - **Validation:** Required field checks, duplicate name prevention, and mapping system reference safety on delete.
 
-## Next Steps (Session 4)
+### Session 4 — Calculator Core Logic ✅
+- **NPD Calculator:** `src/core/npd_calculator.py` — Nominal Point Density estimation. Sensor-agnostic, forward-only model. Inputs: PRR, ground speed, AGL, sensor FOV (sFOV), effective FOV (eFOV). Applies proportional PRR scaling (`eFOV/sFOV`), then `NPD = effective_PRR / (v × W)`. 11 unit tests.
+- **GSD Calculator:** `src/core/gsd_calculator.py` — Ground Sample Distance estimation. Pinhole model: `GSD = (pixel_pitch × AGL) / focal_length`. 7 unit tests.
+- **Horizontal Error Calculator:** `src/core/horizontal_error_calculator.py` — ASPRS RMSE_H model for LiDAR point cloud horizontal accuracy based on GNSS and IMU specs. Validated against ASPRS Table B.8 and 3 real mapping systems. IMU inputs in degrees, converted internally. 12 unit tests.
+- **All modules** are self-contained (stdlib only, no Qt/DB dependencies) and importable into other programs. Total: **30 passing tests** across `tests/`.
 
-1. **Calculator Core Logic (Phase 3c):**
-   - Port point-density (NPD) formula from the Excel reference into `src/core/`.
-   - Port GSD formula.
-   - Port FOV / AGL estimation.
-2. **Wire Calculators into GUI:**
+## Next Steps (Session 5)
+
+1. **Wire Calculators into GUI:**
    - Create a new "Calculators" sidebar panel.
    - Build input forms that reference sensors from the library.
    - Display computed results with real-time updates.
+2. **Additional Calculators:**
+   - Port FOV / AGL estimation.
 3. **Testing:**
-   - Unit tests for calculator formulas against known Excel outputs.
    - Integration tests for sensor manager CRUD operations.

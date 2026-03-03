@@ -18,11 +18,15 @@ from src.ui.styles import get_stylesheet
 
 def _load_fonts(app: QApplication) -> None:
     """Set up application fonts."""
-    # Use Outfit if available, otherwise fall back to Helvetica Neue (macOS)
+    # Use Outfit if available, then platform-native sans-serif
     if QFontDatabase.hasFamily("Outfit"):
         default_font = QFont("Outfit", 13)
-    else:
+    elif QFontDatabase.hasFamily("Segoe UI"):  # Windows
+        default_font = QFont("Segoe UI", 13)
+    elif QFontDatabase.hasFamily("Helvetica Neue"):  # macOS
         default_font = QFont("Helvetica Neue", 13)
+    else:
+        default_font = QFont("sans-serif", 13)
     app.setFont(default_font)
 
 

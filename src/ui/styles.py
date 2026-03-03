@@ -56,7 +56,7 @@ CATEGORY_COLORS = {
 FONTS = {
     "heading": "Outfit",
     "body": "Outfit",
-    "mono": "JetBrains Mono, SF Mono, Menlo, monospace",
+    "mono": "JetBrains Mono, Consolas, SF Mono, Menlo, monospace",
 }
 
 # -- Stylesheet -------------------------------------------------------------
@@ -74,7 +74,7 @@ def get_stylesheet() -> str:
     }}
 
     QWidget {{
-        font-family: '{f['body']}', -apple-system, sans-serif;
+        font-family: '{f['body']}', 'Segoe UI', -apple-system, 'Helvetica Neue', sans-serif;
         font-size: 13px;
         color: {c['text_primary']};
     }}
