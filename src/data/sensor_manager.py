@@ -6,6 +6,8 @@ Reads and writes to sensors.json — the local JSON sensor library.
 
 import json
 import re
+import shutil
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -13,8 +15,37 @@ from loguru import logger
 from PySide6.QtCore import QObject, Signal
 
 
-# Default path to the sensor database, relative to this file
-_DEFAULT_DB_PATH = Path(__file__).parent / "sensors.json"
+def _resolve_db_path() -> Path:
+    """
+    Determine the writable path to sensors.json.
+
+    In development mode, this is simply next to this source file.
+    In a PyInstaller frozen build, the bundled sensors.json lives in a
+    read-only location, so we copy it to a writable directory next to
+    the executable on first launch.
+    """
+    if getattr(sys, "frozen", False):
+        # Running as a frozen PyInstaller bundle
+        exe_dir = Path(sys.executable).parent
+        writable_db = exe_dir / "sensors.json"
+
+        if not writable_db.exists():
+            # First launch — copy bundled default to writable location
+            bundled = Path(sys._MEIPASS) / "src" / "data" / "sensors.json"
+            if bundled.exists():
+                shutil.copy2(bundled, writable_db)
+                logger.info(f"Copied default sensor database to {writable_db}")
+            else:
+                logger.warning("No bundled sensors.json found in frozen build")
+
+        return writable_db
+    else:
+        # Development mode — use file relative to this module
+        return Path(__file__).parent / "sensors.json"
+
+
+# Default path to the sensor database
+_DEFAULT_DB_PATH = _resolve_db_path()
 
 # Valid top-level categories in the database
 CATEGORIES = ("lidar_modules", "camera_modules", "pos_modules", "mapping_systems")

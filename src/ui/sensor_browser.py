@@ -2,20 +2,28 @@
 Sensor library browser — left panel with category tabs and sensor list.
 """
 
+import json
+from pathlib import Path
+
+from loguru import logger
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
+    QFileDialog,
     QHBoxLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
+from src.data import library_io
 from src.data.sensor_manager import CATEGORIES, CATEGORY_LABELS, SensorManager
+from src.ui.import_dialog import ImportPreviewDialog, ImportSummaryDialog
 from src.ui.sensor_edit_dialog import SensorEditDialog
 
 
@@ -122,6 +130,25 @@ class SensorBrowser(QWidget):
         self.delete_btn.setToolTip("Delete selected sensor")
         self.delete_btn.clicked.connect(self._on_delete)
         tb_layout.addWidget(self.delete_btn)
+
+        # Spacer between CRUD and library I/O
+        spacer = QWidget()
+        spacer.setFixedWidth(12)
+        tb_layout.addWidget(spacer)
+
+        self.export_btn = QPushButton("⬆ Export")
+        self.export_btn.setObjectName("action_btn")
+        self.export_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.export_btn.setToolTip("Export sensor library to .2splib file")
+        self.export_btn.clicked.connect(self._on_export)
+        tb_layout.addWidget(self.export_btn)
+
+        self.import_btn = QPushButton("⬇ Import")
+        self.import_btn.setObjectName("action_btn")
+        self.import_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.import_btn.setToolTip("Import sensors from a .2splib file")
+        self.import_btn.clicked.connect(self._on_import)
+        tb_layout.addWidget(self.import_btn)
 
         tb_layout.addStretch()
         layout.addWidget(toolbar)
@@ -277,3 +304,112 @@ class SensorBrowser(QWidget):
         )
         if reply == QMessageBox.StandardButton.Yes:
             self.manager.delete_module(self._current_category, module_id)
+
+    # ------------------------------------------------------------------
+    # Library export / import
+    # ------------------------------------------------------------------
+
+    def _on_export(self):
+        """Export the library — full or selected — to a .2splib file."""
+        current = self.sensor_list.currentItem()
+
+        # Build context menu for export mode
+        menu = QMenu(self)
+        act_full = menu.addAction("Export Full Library")
+        act_selected = menu.addAction("Export Selected Sensor")
+        act_selected.setEnabled(current is not None)
+
+        action = menu.exec(self.export_btn.mapToGlobal(
+            self.export_btn.rect().bottomLeft()
+        ))
+        if action is None:
+            return
+
+        if action == act_full:
+            payload = library_io.export_full_library(self.manager)
+            suggested = library_io.suggest_filename("full")
+        else:
+            module_id = current.data(Qt.ItemDataRole.UserRole)
+            display_name = current.text()
+            payload = library_io.export_selected(
+                self.manager, self._current_category, [module_id]
+            )
+            suggested = library_io.suggest_filename("selected", display_name)
+
+        # File save dialog
+        from PySide6.QtCore import QStandardPaths
+        desktop = QStandardPaths.writableLocation(
+            QStandardPaths.StandardLocation.DesktopLocation
+        )
+        default_path = str(Path(desktop) / suggested)
+
+        filepath, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export Sensor Library",
+            default_path,
+            "2SP Library Files (*.2splib);;All Files (*)",
+        )
+        if not filepath:
+            return
+
+        try:
+            library_io.save_to_file(payload, Path(filepath))
+            total = sum(
+                len(payload.get(cat, [])) for cat in CATEGORIES
+            )
+            QMessageBox.information(
+                self,
+                "Export Successful",
+                f"Exported {total} sensor(s) to:\n{filepath}",
+            )
+        except Exception as e:
+            logger.error(f"Export failed: {e}")
+            QMessageBox.critical(self, "Export Failed", str(e))
+
+    def _on_import(self):
+        """Import sensors from a .2splib file."""
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import Sensor Library",
+            "",
+            "2SP Library Files (*.2splib);;JSON Files (*.json);;All Files (*)",
+        )
+        if not filepath:
+            return
+
+        # Load and validate
+        try:
+            payload = library_io.load_from_file(Path(filepath))
+        except (json.JSONDecodeError, ValueError) as e:
+            QMessageBox.critical(
+                self, "Import Failed",
+                f"Could not read library file:\n{e}",
+            )
+            return
+        except Exception as e:
+            logger.error(f"Import load failed: {e}")
+            QMessageBox.critical(self, "Import Failed", str(e))
+            return
+
+        # Analyze
+        plan = library_io.ImportPlan(self.manager, payload)
+
+        if not plan.to_add and not plan.conflicts:
+            QMessageBox.information(
+                self, "Nothing to Import",
+                "All sensors in this file are already in your library.",
+            )
+            return
+
+        # Show preview dialog
+        dlg = ImportPreviewDialog(plan, parent=self)
+        if dlg.exec() != ImportPreviewDialog.DialogCode.Accepted:
+            return
+
+        # Execute import
+        resolutions = dlg.get_resolutions()
+        counts = library_io.execute_import(self.manager, plan, resolutions)
+
+        # Show summary
+        summary_dlg = ImportSummaryDialog(counts, parent=self)
+        summary_dlg.exec()

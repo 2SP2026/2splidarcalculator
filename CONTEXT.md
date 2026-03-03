@@ -73,6 +73,24 @@ Migrate the existing Excel-based "Leo's LiDAR Calculators" into a standalone, cr
 
 ## Next Steps (Session 6)
 
+### Session 6 — Library Export/Import & Windows Executable ✅
+- **Library Export/Import:** `src/data/library_io.py` — pure-Python (no Qt) module for sharing sensor libraries via `.2splib` files (JSON with metadata header).
+  - **Export Full Library:** Serializes all 4 categories with a `meta` header (format version, timestamp, app name).
+  - **Export Selected:** Exports only the selected sensor. If it's a **mapping system**, auto-includes its referenced LiDAR, camera, and POS sub-modules (transitive dependency resolution).
+  - **Smart-Merge Import:** Analyzes incoming file against current library — detects new entries, identical duplicates (auto-skipped), and conflicts (same ID, different data).
+  - **Conflict Resolution:** Per-conflict UI with three options: *Skip*, *Replace*, or *Import as Copy* (generates new unique ID). Bulk actions (Skip All / Replace All) for multiple conflicts.
+  - **Import Preview Dialog:** `src/ui/import_dialog.py` — shows categorized summary (new / identical / conflicts) with diff highlights before committing. Post-import summary dialog with counts.
+  - **UI Integration:** `⬆ Export` (dropdown: Full Library / Selected Sensor) and `⬇ Import` buttons in the sensor browser toolbar. Native file dialogs with `.2splib` filter, also accepts raw `.json`.
+  - **File Format:** `.2splib` — JSON with custom extension. Human-readable, self-contained (no broken references), forward-compatible via `meta.version`.
+  - **Tests:** 22 new unit tests covering export (full + selected + dependency resolution), file I/O (round-trip, validation, malformed files), import plan analysis (new/identical/conflict), import execution (skip/replace/copy), and filename generation. **Total: 52 passing tests.**
+- **Windows Executable:** PyInstaller one-folder build for distribution without Python installed.
+  - **Spec file:** `2sp_lidar_calculator.spec` — excludes unused packages (numpy, pandas, matplotlib, tkinter), bundles `sensors.json` as seed data.
+  - **Frozen-mode paths:** `sensor_manager.py` detects PyInstaller frozen mode (`sys.frozen`). On first launch, copies bundled `sensors.json` to a writable location next to the exe.
+  - **Logging fix:** In windowed mode (`console=False`), `sys.stderr` is `None`. Logger now falls back to a `2sp_calculator.log` file next to the exe with 1 MB rotation.
+  - **Output:** `dist/2SP_LiDAR_Calculator/` (~120 MB, 212 files). Compresses to ~48 MB zip for distribution.
+
+## Next Steps (Session 7)
+
 1. **Additional Calculators:**
    - Port FOV / AGL estimation calculator.
 2. **Testing:**
@@ -81,3 +99,4 @@ Migrate the existing Excel-based "Leo's LiDAR Calculators" into a standalone, cr
 3. **Polish:**
    - Active sidebar button visual indicator.
    - Keyboard shortcuts for navigation.
+   - App icon for the Windows executable.

@@ -34,11 +34,24 @@ def main():
     """Launch the 2SP LiDAR Calculator application."""
     # Configure logging
     logger.remove()
-    logger.add(
-        sys.stderr,
-        level="INFO",
-        format="<green>{time:HH:mm:ss}</green> | <level>{level: <7}</level> | {message}",
-    )
+
+    if sys.stderr is not None:
+        # Development / console mode — log to terminal
+        logger.add(
+            sys.stderr,
+            level="INFO",
+            format="<green>{time:HH:mm:ss}</green> | <level>{level: <7}</level> | {message}",
+        )
+    else:
+        # Frozen GUI mode (no console) — log to file next to the exe
+        log_path = Path(sys.executable).parent / "2sp_calculator.log"
+        logger.add(
+            str(log_path),
+            level="INFO",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <7} | {message}",
+            rotation="1 MB",
+            retention=3,
+        )
 
     logger.info("Starting 2SP LiDAR Calculator v0.1.0")
 
