@@ -59,11 +59,25 @@ Migrate the existing Excel-based "Leo's LiDAR Calculators" into a standalone, cr
 
 ## Next Steps (Session 5)
 
-1. **Wire Calculators into GUI:**
-   - Create a new "Calculators" sidebar panel.
-   - Build input forms that reference sensors from the library.
-   - Display computed results with real-time updates.
-2. **Additional Calculators:**
-   - Port FOV / AGL estimation.
-3. **Testing:**
+### Session 5 — Calculator GUI & Export ✅
+- **Calculator Panel:** New `src/ui/calculator_panel.py` — three tabbed calculators (NPD, GSD, RMSE_H) integrated into the main window via `QStackedWidget` with sidebar navigation toggle.
+- **Sensor Picker:** Each tab has a `QComboBox` for selecting sensors from the library (LiDAR, Camera, POS respectively), plus a **"— Manual Entry —"** option for freeform input. Selecting a sensor auto-populates spec fields (PRR, FOV, focal length, GNSS error, etc.). Fields remain editable for what-if analysis.
+- **Real-Time Results:** Calculations update instantly on every input change — no "Calculate" button needed. Results displayed in styled cards with large numeric values and units.
+- **Assumptions & References:** Each tab shows an expandable info section with the math model formula, assumptions list, and authoritative references (e.g., ASPRS Edition 2, 2024 for RMSE_H).
+- **Export:** `src/core/calculator_export.py` — two export formats:
+  - **TXT:** Structured `[SECTION]` + key-value pairs for easy script parsing.
+  - **HTML:** Standalone presentation-grade report with DM Sans + JetBrains Mono, light theme with corporate blue (`#1B5E94`) accents, result hero cards, and `@media print` styles.
+  - Auto-generated filename: `{calculator}-{sensor}-{YYYY-MM-DD}`. Native `QFileDialog` with cross-platform Desktop default via `QStandardPaths`.
+- **Styles:** Added QSS rules for calculator tabs, result cards, info sections, error labels, and active sidebar button states.
+- **Tests:** All 30 existing unit tests pass. Import checks clean.
+
+## Next Steps (Session 6)
+
+1. **Additional Calculators:**
+   - Port FOV / AGL estimation calculator.
+2. **Testing:**
    - Integration tests for sensor manager CRUD operations.
+   - GUI smoke tests with `pytest-qt`.
+3. **Polish:**
+   - Active sidebar button visual indicator.
+   - Keyboard shortcuts for navigation.

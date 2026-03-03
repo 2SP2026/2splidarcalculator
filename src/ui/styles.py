@@ -468,4 +468,124 @@ def get_stylesheet() -> str:
     #array_edit_table::item {{
         padding: 4px 8px;
     }}
+
+    /* ── Calculator Panel ───────────────────────────────────── */
+    #calculator_panel {{
+        background-color: {c['bg_primary']};
+    }}
+
+    #calc_header {{
+        background-color: {c['bg_card']};
+        border-bottom: 1px solid {c['border']};
+    }}
+
+    #calc_section_header {{
+        font-family: '{f['heading']}', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: {c['text_tertiary']};
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        padding: 8px 0px 2px 0px;
+    }}
+
+    #calc_group {{
+        border: 1px solid {c['border_light']};
+        border-radius: 8px;
+        padding: 14px;
+        background-color: {c['bg_card']};
+    }}
+
+    /* ── Calculator Tabs ────────────────────────────────────── */
+    #calc_tabs::pane {{
+        border: none;
+        background-color: {c['bg_primary']};
+    }}
+
+    #calc_tabs > QTabBar::tab {{
+        padding: 10px 24px;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-size: 13px;
+        font-weight: 600;
+        color: {c['text_secondary']};
+        background: {c['bg_secondary']};
+    }}
+
+    #calc_tabs > QTabBar::tab:hover {{
+        color: {c['text_primary']};
+        background-color: rgba(0, 0, 0, 0.03);
+    }}
+
+    #calc_tabs > QTabBar::tab:selected {{
+        color: {c['accent']};
+        border-bottom: 2px solid {c['accent']};
+        background: {c['bg_card']};
+    }}
+
+    /* ── Result Cards ───────────────────────────────────────── */
+    #result_card {{
+        background-color: {c['bg_card']};
+        border: 1px solid {c['border_light']};
+        border-radius: 10px;
+        min-width: 140px;
+    }}
+
+    #result_card_title {{
+        font-family: '{f['heading']}', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        color: {c['text_tertiary']};
+        letter-spacing: 0.5px;
+    }}
+
+    #result_card_value {{
+        font-family: {f['mono']};
+        font-size: 24px;
+        font-weight: 700;
+        color: {c['accent']};
+    }}
+
+    #result_card_unit {{
+        font-size: 11px;
+        color: {c['text_secondary']};
+    }}
+
+    /* ── Calculator Error ───────────────────────────────────── */
+    #calc_error {{
+        color: #B04040;
+        font-size: 12px;
+        padding: 6px 12px;
+        background-color: #FDF0F0;
+        border: 1px solid #E8C0C0;
+        border-radius: 6px;
+    }}
+
+    /* ── Info Section (Assumptions & References) ────────────── */
+    #info_section {{
+        background-color: #F4F6F8;
+        border: 1px solid {c['border_light']};
+        border-radius: 8px;
+    }}
+
+    #info_section_title {{
+        font-family: '{f['heading']}', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: {c['text_secondary']};
+    }}
+
+    #info_section_text {{
+        font-size: 12px;
+        color: {c['text_secondary']};
+        line-height: 1.5;
+    }}
+
+    #info_section_text code {{
+        font-family: {f['mono']};
+        font-size: 12px;
+        background-color: rgba(0, 0, 0, 0.05);
+        padding: 2px 6px;
+        border-radius: 3px;
+    }}
     """

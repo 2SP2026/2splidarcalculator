@@ -10,12 +10,14 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QPushButton,
     QSplitter,
+    QStackedWidget,
     QStatusBar,
     QVBoxLayout,
     QWidget,
 )
 
 from src.data.sensor_manager import SensorManager
+from src.ui.calculator_panel import CalculatorPanel
 from src.ui.sensor_browser import SensorBrowser
 from src.ui.sensor_detail import SensorDetail
 from src.ui.styles import COLORS
@@ -23,6 +25,10 @@ from src.ui.styles import COLORS
 
 class MainWindow(QMainWindow):
     """Main application window."""
+
+    # Page indices for QStackedWidget
+    PAGE_LIBRARY = 0
+    PAGE_CALCULATORS = 1
 
     def __init__(self):
         super().__init__()
@@ -40,6 +46,7 @@ class MainWindow(QMainWindow):
             from loguru import logger
             logger.warning(f"Sensor DB: {w}")
 
+        self._nav_buttons: list[QPushButton] = []
         self._build_ui()
 
     def _build_ui(self):
@@ -53,13 +60,15 @@ class MainWindow(QMainWindow):
         sidebar = self._build_sidebar()
         main_layout.addWidget(sidebar)
 
-        # ── Content area ──
-        content_area = QWidget()
-        content_layout = QVBoxLayout(content_area)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(0)
+        # ── Content area (stacked pages) ──
+        self.stack = QStackedWidget()
 
-        # ── Splitter: browser | detail ──
+        # ── Page 0: Sensor Library ──
+        library_page = QWidget()
+        library_layout = QVBoxLayout(library_page)
+        library_layout.setContentsMargins(0, 0, 0, 0)
+        library_layout.setSpacing(0)
+
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.setHandleWidth(1)
         self.splitter.setStyleSheet(f"""
@@ -68,22 +77,24 @@ class MainWindow(QMainWindow):
             }}
         """)
 
-        # Browser panel (left)
         self.browser = SensorBrowser(self.manager)
         self.splitter.addWidget(self.browser)
 
-        # Detail panel (right)
         self.detail = SensorDetail(self.manager)
         self.splitter.addWidget(self.detail)
 
-        # Set initial sizes (30% browser, 70% detail)
         self.splitter.setSizes([350, 750])
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
 
-        content_layout.addWidget(self.splitter)
+        library_layout.addWidget(self.splitter)
+        self.stack.addWidget(library_page)
 
-        main_layout.addWidget(content_area, stretch=1)
+        # ── Page 1: Calculators ──
+        self.calc_panel = CalculatorPanel(self.manager)
+        self.stack.addWidget(self.calc_panel)
+
+        main_layout.addWidget(self.stack, stretch=1)
 
         # ── Connect signals ──
         self.browser.sensor_selected.connect(self.detail.show_sensor)
@@ -94,13 +105,33 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status)
         self._refresh_status_bar()
 
+        # Start on Sensor Library page
+        self._switch_page(self.PAGE_LIBRARY)
+
+    def _switch_page(self, index: int):
+        """Switch the stacked widget to the given page index."""
+        self.stack.setCurrentIndex(index)
+        # Update sidebar active state
+        for i, btn in enumerate(self._nav_buttons):
+            btn.setProperty("active", i == index)
+            # Force style re-evaluation
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
+        self._refresh_status_bar()
+
     def _refresh_status_bar(self):
-        """Update the status bar with the current sensor count."""
-        total_sensors = sum(
-            len(self.manager.get_modules(cat))
-            for cat in ("lidar_modules", "camera_modules", "pos_modules", "mapping_systems")
-        )
-        self.status.showMessage(f"Sensor Library  ·  {total_sensors} entries loaded")
+        """Update the status bar based on the active page."""
+        if self.stack.currentIndex() == self.PAGE_LIBRARY:
+            total_sensors = sum(
+                len(self.manager.get_modules(cat))
+                for cat in ("lidar_modules", "camera_modules",
+                            "pos_modules", "mapping_systems")
+            )
+            self.status.showMessage(
+                f"Sensor Library  ·  {total_sensors} entries loaded"
+            )
+        else:
+            self.status.showMessage("Calculators  ·  Real-time estimation mode")
 
     def _build_sidebar(self) -> QWidget:
         """Build the dark sidebar with navigation."""
@@ -119,23 +150,30 @@ class MainWindow(QMainWindow):
         subtitle.setObjectName("sidebar_subtitle")
         layout.addWidget(subtitle)
 
-        # Navigation buttons
+        # Navigation buttons — (label, page_index or None for disabled)
         nav_items = [
-            ("📡  Sensor Library", True),
-            ("📐  Calculators", False),
-            ("⚙️  Settings", False),
+            ("📡  Sensor Library", self.PAGE_LIBRARY),
+            ("📐  Calculators", self.PAGE_CALCULATORS),
+            ("⚙️  Settings", None),
         ]
 
-        for label, enabled in nav_items:
+        for label, page_index in nav_items:
             btn = QPushButton(label)
-            btn.setCursor(Qt.CursorShape.PointingHandCursor if enabled else Qt.CursorShape.ForbiddenCursor)
+            enabled = page_index is not None
+            btn.setCursor(
+                Qt.CursorShape.PointingHandCursor if enabled
+                else Qt.CursorShape.ForbiddenCursor
+            )
             btn.setEnabled(enabled)
             if not enabled:
                 btn.setToolTip("Coming soon")
                 btn.setStyleSheet("color: rgba(255, 255, 255, 0.25);")
             else:
-                btn.setProperty("active", True)
+                btn.clicked.connect(
+                    lambda checked, idx=page_index: self._switch_page(idx)
+                )
             layout.addWidget(btn)
+            self._nav_buttons.append(btn)
 
         layout.addStretch()
 
