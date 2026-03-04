@@ -2,24 +2,30 @@
 """
 PyInstaller spec file for 2SP LiDAR Calculator.
 
-Build:  .venv/scripts/pyinstaller 2sp_lidar_calculator.spec
+Build:  .venv/scripts/pyinstaller 2sp_lidar_calculator.spec --clean --noconfirm
 Output: dist/2SP_LiDAR_Calculator/  (one-folder distribution)
 """
 
-import sys
 from pathlib import Path
+from PyInstaller.utils.hooks import collect_dynamic_libs
 
 block_cipher = None
 
-# -- Data files to bundle alongside the app --------------------------------
-# sensors.json is the sensor database — bundled as a seed copy.
-# On first launch, the frozen app copies it to a writable location
-# next to the exe so users can add/edit/import sensors.
+# -- MSVC Runtime DLLs (needed on machines without VC++ Redistributable) ---
+# PySide6 ships these alongside its DLLs. We place them at the top-level
+# _internal root so ALL Qt DLLs can find them at load time.
+pyside6_dir = Path(__import__('PySide6').__file__).parent
+msvc_dlls = []
+for pattern in ['vcruntime*.dll', 'msvcp*.dll', 'concrt*.dll']:
+    for dll in pyside6_dir.glob(pattern):
+        msvc_dlls.append((str(dll), '.'))
+
+# -- App data files --------------------------------------------------------
 datas = [
     ('src/data/sensors.json', 'src/data'),
 ]
 
-# -- Hidden imports that PyInstaller sometimes misses ----------------------
+# -- Hidden imports ---------------------------------------------------------
 hiddenimports = [
     'loguru',
     'PySide6.QtCore',
@@ -30,14 +36,14 @@ hiddenimports = [
 a = Analysis(
     ['src/main.py'],
     pathex=['.'],
-    binaries=[],
+    binaries=msvc_dlls,
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
-        # Exclude heavy packages not needed at runtime
+        # Heavy packages not used at runtime
         'matplotlib',
         'numpy',
         'pandas',
@@ -49,6 +55,53 @@ a = Analysis(
         'pytest',
         'setuptools',
         'pip',
+        # Qt modules we don't use — avoid bloating the bundle
+        'PySide6.Qt3DAnimation',
+        'PySide6.Qt3DCore',
+        'PySide6.Qt3DExtras',
+        'PySide6.Qt3DInput',
+        'PySide6.Qt3DLogic',
+        'PySide6.Qt3DRender',
+        'PySide6.QtBluetooth',
+        'PySide6.QtCharts',
+        'PySide6.QtConcurrent',
+        'PySide6.QtDataVisualization',
+        'PySide6.QtDesigner',
+        'PySide6.QtGraphs',
+        'PySide6.QtGraphsWidgets',
+        'PySide6.QtHttpServer',
+        'PySide6.QtLocation',
+        'PySide6.QtMultimedia',
+        'PySide6.QtMultimediaWidgets',
+        'PySide6.QtNfc',
+        'PySide6.QtOpenGL',
+        'PySide6.QtOpenGLWidgets',
+        'PySide6.QtPdf',
+        'PySide6.QtPdfWidgets',
+        'PySide6.QtPositioning',
+        'PySide6.QtQml',
+        'PySide6.QtQuick',
+        'PySide6.QtQuick3D',
+        'PySide6.QtQuickWidgets',
+        'PySide6.QtRemoteObjects',
+        'PySide6.QtScxml',
+        'PySide6.QtSensors',
+        'PySide6.QtSerialBus',
+        'PySide6.QtSerialPort',
+        'PySide6.QtSpatialAudio',
+        'PySide6.QtSql',
+        'PySide6.QtStateMachine',
+        'PySide6.QtSvg',
+        'PySide6.QtSvgWidgets',
+        'PySide6.QtTest',
+        'PySide6.QtTextToSpeech',
+        'PySide6.QtUiTools',
+        'PySide6.QtWebChannel',
+        'PySide6.QtWebEngine',
+        'PySide6.QtWebEngineCore',
+        'PySide6.QtWebEngineWidgets',
+        'PySide6.QtWebSockets',
+        'PySide6.QtXml',
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
