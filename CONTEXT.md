@@ -84,10 +84,24 @@ Migrate the existing Excel-based "Leo's LiDAR Calculators" into a standalone, cr
   - **File Format:** `.2splib` — JSON with custom extension. Human-readable, self-contained (no broken references), forward-compatible via `meta.version`.
   - **Tests:** 22 new unit tests covering export (full + selected + dependency resolution), file I/O (round-trip, validation, malformed files), import plan analysis (new/identical/conflict), import execution (skip/replace/copy), and filename generation. **Total: 52 passing tests.**
 - **Windows Executable:** PyInstaller one-folder build for distribution without Python installed.
-  - **Spec file:** `2sp_lidar_calculator.spec` — excludes unused packages (numpy, pandas, matplotlib, tkinter), bundles `sensors.json` as seed data.
+  - **Spec file:** `2sp_lidar_calculator.spec` — excludes unused packages (numpy, pandas, matplotlib, tkinter) and ~40 unused Qt modules (3D, Bluetooth, Charts, WebEngine, etc.), bundles `sensors.json` as seed data. MSVC runtime DLLs placed in both `_internal/` root and `PySide6/` subdirectory.
+  - **Runtime hook:** `pyinstaller_runtime_hook.py` — registers `_internal/`, `PySide6/`, and `shiboken6/` directories in `os.add_dll_directory()` before any Qt imports, ensuring DLL search works on all Windows configurations.
   - **Frozen-mode paths:** `sensor_manager.py` detects PyInstaller frozen mode (`sys.frozen`). On first launch, copies bundled `sensors.json` to a writable location next to the exe.
   - **Logging fix:** In windowed mode (`console=False`), `sys.stderr` is `None`. Logger now falls back to a `2sp_calculator.log` file next to the exe with 1 MB rotation.
-  - **Output:** `dist/2SP_LiDAR_Calculator/` (~120 MB, 212 files). Compresses to ~48 MB zip for distribution.
+  - **Build command:** `.venv/scripts/pyinstaller 2sp_lidar_calculator.spec --clean --noconfirm`
+  - **Output:** `dist/2SP_LiDAR_Calculator/` (~155 MB). Compresses to ~47 MB zip for distribution.
+
+### Known Issues & Resolutions (PyInstaller + PySide6)
+
+Three issues were encountered during Windows exe distribution and resolved:
+
+| # | Error | Root Cause | Fix |
+|---|-------|-----------|-----|
+| 1 | `TypeError: Cannot log to objects of type 'NoneType'` | In windowed PyInstaller builds (`console=False`), `sys.stderr` is `None`. Loguru crashes trying to log to it. | `main.py`: check `if sys.stderr is not None`, else log to file next to exe. |
+| 2 | `ImportError: DLL load failed while importing QtGui` (missing DLL) | Tester's machine missing VC++ Redistributable. MSVC runtime DLLs (`vcruntime140.dll`, `msvcp140.dll`, `concrt140.dll`, etc.) not found by Windows DLL search. | Spec bundles all 7 MSVC DLLs to both `_internal/` and `PySide6/`. Runtime hook adds `os.add_dll_directory()`. |
+| 3 | `ImportError: DLL load failed while importing QtGui` (procedure not found) | **PySide6 6.10.x** changed Qt DLL internal symbol exports, breaking compatibility with PyInstaller's frozen bundle mechanism. Known upstream issue. | Pin PySide6 to `>=6.6,<6.9` in `requirements.txt`. Tested and confirmed working with **6.8.3**. |
+
+> **Key lesson:** Always test the frozen exe on a **clean machine** (no Python/dev tools installed) before distributing. Build-machine success does not guarantee tester-machine success.
 
 ## Next Steps (Session 7)
 
