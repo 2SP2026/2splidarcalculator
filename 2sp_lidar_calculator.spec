@@ -12,13 +12,15 @@ from PyInstaller.utils.hooks import collect_dynamic_libs
 block_cipher = None
 
 # -- MSVC Runtime DLLs (needed on machines without VC++ Redistributable) ---
-# PySide6 ships these alongside its DLLs. We place them at the top-level
-# _internal root so ALL Qt DLLs can find them at load time.
+# PySide6 ships these. We place copies at BOTH the _internal root AND the
+# PySide6 subdirectory so Windows DLL search finds them no matter which
+# directory Qt loads from.
 pyside6_dir = Path(__import__('PySide6').__file__).parent
 msvc_dlls = []
 for pattern in ['vcruntime*.dll', 'msvcp*.dll', 'concrt*.dll']:
     for dll in pyside6_dir.glob(pattern):
-        msvc_dlls.append((str(dll), '.'))
+        msvc_dlls.append((str(dll), '.'))           # _internal root
+        msvc_dlls.append((str(dll), 'PySide6'))     # PySide6 subdirectory
 
 # -- App data files --------------------------------------------------------
 datas = [
@@ -41,7 +43,7 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[],
+    runtime_hooks=['pyinstaller_runtime_hook.py'],
     excludes=[
         # Heavy packages not used at runtime
         'matplotlib',
