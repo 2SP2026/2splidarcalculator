@@ -90,12 +90,6 @@ class OverlapCalculatorApp(QMainWindow):
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(30, 30, 30, 30)
         
-        # --- Description ---
-        desc_lbl = QLabel("Interactive Swath Overlap Calculator. Easily plan flight line spacing, altitude, or overlap parameters.")
-        desc_lbl.setWordWrap(True)
-        desc_lbl.setStyleSheet("color: #7f8c8d; font-size: 13px; margin-bottom: 10px;")
-        main_layout.addWidget(desc_lbl)
-        
         # --- Top: Unit Selection ---
         unit_group = QGroupBox("Measurement Unit")
         unit_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid #bdc3c7; border-radius: 6px; margin-top: 16px; padding-top: 8px; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 10px; padding: 0 3px; }")
@@ -155,7 +149,7 @@ class OverlapCalculatorApp(QMainWindow):
         self.result_frame = QFrame()
         self.result_frame.setStyleSheet("""
             QFrame {
-                background-color: #2c3e50;
+                background-color: #2C2C2E;
                 border-radius: 10px;
                 padding: 15px;
             }
@@ -163,11 +157,11 @@ class OverlapCalculatorApp(QMainWindow):
         result_layout = QVBoxLayout(self.result_frame)
         self.result_title = QLabel("Calculated Overlap Percentage")
         self.result_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.result_title.setStyleSheet("font-size: 14px; color: #bdc3c7;")
+        self.result_title.setStyleSheet("font-size: 14px; color: #E6E2DB;")
         
         self.result_value = QLabel("0.0 %")
         self.result_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.result_value.setStyleSheet("font-size: 44px; font-weight: bold; color: #00d2d3;")
+        self.result_value.setStyleSheet("font-size: 44px; font-weight: bold; color: #FFD700;")
         
         result_layout.addWidget(self.result_title)
         result_layout.addWidget(self.result_value)
