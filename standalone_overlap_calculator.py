@@ -73,7 +73,7 @@ class OverlapCalculatorApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Drone LiDAR Flight Overlap Calculator")
-        self.setMinimumSize(650, 600)
+        self.setMinimumSize(650, 680)
         
         self.is_metric = True  # True for Meters, False for Feet
         self.FT_TO_M = 0.3048
@@ -328,7 +328,7 @@ class OverlapCalculatorApp(QMainWindow):
                 self.result_value.setText(f"{val:.1f} °")
                 final_fov, final_alt, final_spacing = val, alt, spacing
                 
-            if feat_h > 0 and final_alt != float('inf'):
+            if final_alt != float('inf'):
                 self.secondary_widget.setVisible(True)
                 W_ground = self._get_w(final_alt, final_fov)
                 if W_ground == 0: ground_ov = 0.0
