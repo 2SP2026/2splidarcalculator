@@ -167,8 +167,18 @@ class OverlapCalculatorApp(QMainWindow):
         self.result_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.result_value.setStyleSheet("font-size: 44px; font-weight: bold; color: #FFD700;")
         
+        self.secondary_result_title = QLabel("Ground Overlap (Bare Earth)")
+        self.secondary_result_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.secondary_result_title.setStyleSheet("font-size: 13px; color: #95a5a6; margin-top: 15px;")
+        
+        self.secondary_result_value = QLabel("0.0 %")
+        self.secondary_result_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.secondary_result_value.setStyleSheet("font-size: 26px; font-weight: bold; color: #bdc3c7;")
+        
         result_layout.addWidget(self.result_title)
         result_layout.addWidget(self.result_value)
+        result_layout.addWidget(self.secondary_result_title)
+        result_layout.addWidget(self.secondary_result_value)
         main_layout.addWidget(self.result_frame)
         
         main_layout.addStretch()
@@ -232,7 +242,7 @@ class OverlapCalculatorApp(QMainWindow):
         self.fov_input.setVisible(idx != 3)
         
         titles = [
-            "Calculated Overlap Percentage",
+            "Calculated Safety Overlap (At Canopy)",
             "Required Line Spacing",
             "Required Altitude (AGL)",
             "Required Sensor FOV"
@@ -257,43 +267,60 @@ class OverlapCalculatorApp(QMainWindow):
         
         try:
             if idx == 0:  # Solve Overlap
-                W = self._get_w(eff_alt, fov)
-                if W == 0: val = 0.0
-                else: val = max(0.0, (1 - spacing / W) * 100)
+                W_safe = self._get_w(eff_alt, fov)
+                if W_safe == 0: val = 0.0
+                else: val = max(0.0, (1 - spacing / W_safe) * 100)
                 self.result_value.setText(f"{val:.1f} %")
+                final_fov, final_alt, final_spacing = fov, alt, spacing
                 
             elif idx == 1:  # Solve Spacing
-                W = self._get_w(eff_alt, fov)
-                val = max(0.0, W * (1 - overlap / 100))
+                W_safe = self._get_w(eff_alt, fov)
+                val = max(0.0, W_safe * (1 - overlap / 100))
                 self.result_value.setText(f"{val:.1f} {unit_str}")
+                final_fov, final_alt, final_spacing = fov, alt, val
                 
             elif idx == 2:  # Solve Altitude
                 if overlap >= 100: val = float('inf')
                 else:
-                    W = spacing / (1 - overlap / 100)
+                    W_safe = spacing / (1 - overlap / 100)
                     fov_rad = math.radians(fov)
                     if fov_rad == 0: val = float('inf')
                     else: 
-                        safe_agl = max(0.0, W / (2 * math.tan(fov_rad / 2)))
+                        safe_agl = max(0.0, W_safe / (2 * math.tan(fov_rad / 2)))
                         val = safe_agl + feat_h
                 if val == float('inf'):
                     self.result_value.setText("Impossible")
+                    final_fov, final_alt, final_spacing = fov, float('inf'), spacing
                 else:
                     self.result_value.setText(f"{val:.1f} {unit_str}")
+                    final_fov, final_alt, final_spacing = fov, val, spacing
                     
             elif idx == 3:  # Solve FOV
                 if overlap >= 100 or eff_alt <= 0: val = 180.0
                 else:
-                    W = spacing / (1 - overlap / 100)
-                    if W / (2 * eff_alt) > 1000: # Effectively near 180 deg
+                    W_safe = spacing / (1 - overlap / 100)
+                    if W_safe / (2 * eff_alt) > 1000: # Effectively near 180 deg
                         val = 180.0
                     else:
-                        fov_rad = 2 * math.atan(W / (2 * eff_alt))
+                        fov_rad = 2 * math.atan(W_safe / (2 * eff_alt))
                         val = math.degrees(fov_rad)
                 self.result_value.setText(f"{val:.1f} °")
+                final_fov, final_alt, final_spacing = val, alt, spacing
+                
+            if feat_h > 0 and final_alt != float('inf'):
+                self.secondary_result_title.setVisible(True)
+                self.secondary_result_value.setVisible(True)
+                W_ground = self._get_w(final_alt, final_fov)
+                if W_ground == 0: ground_ov = 0.0
+                else: ground_ov = max(0.0, (1 - final_spacing / W_ground) * 100)
+                self.secondary_result_value.setText(f"{ground_ov:.1f} %")
+            else:
+                self.secondary_result_title.setVisible(False)
+                self.secondary_result_value.setVisible(False)
                 
         except Exception as e:
             self.result_value.setText("Error")
+            self.secondary_result_value.setText("")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
