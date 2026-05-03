@@ -327,13 +327,17 @@
       "manufacturer": "Teledyne FLIR",
       "model": "EchoONE Internal Camera",
       "sensor_type": "Global Shutter",
+      "sensor_width_mm": 8.45,
+      "sensor_height_mm": 7.09,
+      "image_width_px": 2448,
+      "image_height_px": 2048,
       "megapixels": 5,
       "fov_deg": 80.0,
       "notes": "Integrated 5MP global shutter camera for colorization. Optional external Sony ILX-LR1 61MP available.",
       "lens_configurations": [
         {
-          "name": "Integrated Lens",
-          "fov_deg": 80
+          "name": "Embedded Lens 17.3mm",
+          "value": 17.3
         }
       ],
       "id": "resepi_internal_5mp"
