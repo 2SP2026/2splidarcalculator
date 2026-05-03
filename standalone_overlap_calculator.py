@@ -73,7 +73,7 @@ class OverlapCalculatorApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Drone LiDAR Flight Overlap Calculator")
-        self.setMinimumSize(600, 550)
+        self.setMinimumSize(650, 600)
         
         self.is_metric = True  # True for Meters, False for Feet
         self.FT_TO_M = 0.3048
@@ -135,7 +135,7 @@ class OverlapCalculatorApp(QMainWindow):
         self.spacing_input = SliderSpinBox("Line Spacing:", 1.0, 1000.0, decimals=1, suffix=" m")
         self.spacing_input.set_value(30.0)
         
-        self.overlap_input = SliderSpinBox("Target Overlap:", 0.0, 99.0, decimals=1, suffix=" %")
+        self.overlap_input = SliderSpinBox("Safety Overlap:", 0.0, 99.0, decimals=1, suffix=" %")
         self.overlap_input.set_value(50.0)
         
         self.feature_height_input = SliderSpinBox("Feature Height:", 0.0, 500.0, decimals=1, suffix=" m")
@@ -158,7 +158,14 @@ class OverlapCalculatorApp(QMainWindow):
                 padding: 15px;
             }
         """)
-        result_layout = QVBoxLayout(self.result_frame)
+        result_layout = QHBoxLayout(self.result_frame)
+        result_layout.setContentsMargins(20, 25, 20, 25)
+        
+        # Left side: Primary Result
+        primary_widget = QWidget()
+        primary_layout = QVBoxLayout(primary_widget)
+        primary_layout.setContentsMargins(0, 0, 0, 0)
+        
         self.result_title = QLabel("Calculated Overlap Percentage")
         self.result_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.result_title.setStyleSheet("font-size: 14px; color: #E6E2DB;")
@@ -167,18 +174,32 @@ class OverlapCalculatorApp(QMainWindow):
         self.result_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.result_value.setStyleSheet("font-size: 44px; font-weight: bold; color: #FFD700;")
         
+        primary_layout.addStretch()
+        primary_layout.addWidget(self.result_title)
+        primary_layout.addWidget(self.result_value)
+        primary_layout.addStretch()
+        
+        # Right side: Secondary Result
+        self.secondary_widget = QWidget()
+        secondary_layout = QVBoxLayout(self.secondary_widget)
+        secondary_layout.setContentsMargins(0, 0, 0, 0)
+        
         self.secondary_result_title = QLabel("Ground Overlap (Bare Earth)")
         self.secondary_result_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.secondary_result_title.setStyleSheet("font-size: 13px; color: #95a5a6; margin-top: 15px;")
+        self.secondary_result_title.setStyleSheet("font-size: 14px; color: #95a5a6;")
         
         self.secondary_result_value = QLabel("0.0 %")
         self.secondary_result_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.secondary_result_value.setStyleSheet("font-size: 26px; font-weight: bold; color: #bdc3c7;")
+        self.secondary_result_value.setStyleSheet("font-size: 36px; font-weight: bold; color: #bdc3c7;")
         
-        result_layout.addWidget(self.result_title)
-        result_layout.addWidget(self.result_value)
-        result_layout.addWidget(self.secondary_result_title)
-        result_layout.addWidget(self.secondary_result_value)
+        secondary_layout.addStretch()
+        secondary_layout.addWidget(self.secondary_result_title)
+        secondary_layout.addWidget(self.secondary_result_value)
+        secondary_layout.addStretch()
+        
+        result_layout.addWidget(primary_widget)
+        result_layout.addWidget(self.secondary_widget)
+        
         main_layout.addWidget(self.result_frame)
         
         main_layout.addStretch()
@@ -308,15 +329,13 @@ class OverlapCalculatorApp(QMainWindow):
                 final_fov, final_alt, final_spacing = val, alt, spacing
                 
             if feat_h > 0 and final_alt != float('inf'):
-                self.secondary_result_title.setVisible(True)
-                self.secondary_result_value.setVisible(True)
+                self.secondary_widget.setVisible(True)
                 W_ground = self._get_w(final_alt, final_fov)
                 if W_ground == 0: ground_ov = 0.0
                 else: ground_ov = max(0.0, (1 - final_spacing / W_ground) * 100)
                 self.secondary_result_value.setText(f"{ground_ov:.1f} %")
             else:
-                self.secondary_result_title.setVisible(False)
-                self.secondary_result_value.setVisible(False)
+                self.secondary_widget.setVisible(False)
                 
         except Exception as e:
             self.result_value.setText("Error")
