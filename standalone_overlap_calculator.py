@@ -138,10 +138,14 @@ class OverlapCalculatorApp(QMainWindow):
         self.overlap_input = SliderSpinBox("Target Overlap:", 0.0, 99.0, decimals=1, suffix=" %")
         self.overlap_input.set_value(50.0)
         
+        self.feature_height_input = SliderSpinBox("Feature Height:", 0.0, 500.0, decimals=1, suffix=" m")
+        self.feature_height_input.set_value(0.0)
+        
         inputs_layout.addWidget(self.fov_input)
         inputs_layout.addWidget(self.alt_input)
         inputs_layout.addWidget(self.spacing_input)
         inputs_layout.addWidget(self.overlap_input)
+        inputs_layout.addWidget(self.feature_height_input)
         
         main_layout.addWidget(self.inputs_group)
         
@@ -177,6 +181,7 @@ class OverlapCalculatorApp(QMainWindow):
         self.alt_input.valueChanged.connect(self._recalculate)
         self.spacing_input.valueChanged.connect(self._recalculate)
         self.overlap_input.valueChanged.connect(self._recalculate)
+        self.feature_height_input.valueChanged.connect(self._recalculate)
         
     def _on_unit_toggled(self):
         was_metric = self.is_metric
@@ -188,24 +193,31 @@ class OverlapCalculatorApp(QMainWindow):
         suffix = " m" if self.is_metric else " ft"
         self.alt_input.set_suffix(suffix)
         self.spacing_input.set_suffix(suffix)
+        self.feature_height_input.set_suffix(suffix)
         
         # Convert ranges and current values
         self.alt_input.blockSignals(True)
         self.spacing_input.blockSignals(True)
+        self.feature_height_input.blockSignals(True)
         
         if self.is_metric:
             self.alt_input.set_range(5.0, 1000.0)
             self.alt_input.set_value(self.alt_input.value() * self.FT_TO_M)
             self.spacing_input.set_range(1.0, 1000.0)
             self.spacing_input.set_value(self.spacing_input.value() * self.FT_TO_M)
+            self.feature_height_input.set_range(0.0, 500.0)
+            self.feature_height_input.set_value(self.feature_height_input.value() * self.FT_TO_M)
         else:
             self.alt_input.set_range(15.0, 3000.0)
             self.alt_input.set_value(self.alt_input.value() / self.FT_TO_M)
             self.spacing_input.set_range(3.0, 3000.0)
             self.spacing_input.set_value(self.spacing_input.value() / self.FT_TO_M)
+            self.feature_height_input.set_range(0.0, 1500.0)
+            self.feature_height_input.set_value(self.feature_height_input.value() / self.FT_TO_M)
             
         self.alt_input.blockSignals(False)
         self.spacing_input.blockSignals(False)
+        self.feature_height_input.blockSignals(False)
         self._recalculate()
         
     def _on_target_changed(self):
@@ -238,18 +250,20 @@ class OverlapCalculatorApp(QMainWindow):
         alt = self.alt_input.value()
         spacing = self.spacing_input.value()
         overlap = self.overlap_input.value()
+        feat_h = self.feature_height_input.value()
         
+        eff_alt = max(0.0, alt - feat_h)
         unit_str = "m" if self.is_metric else "ft"
         
         try:
             if idx == 0:  # Solve Overlap
-                W = self._get_w(alt, fov)
+                W = self._get_w(eff_alt, fov)
                 if W == 0: val = 0.0
                 else: val = max(0.0, (1 - spacing / W) * 100)
                 self.result_value.setText(f"{val:.1f} %")
                 
             elif idx == 1:  # Solve Spacing
-                W = self._get_w(alt, fov)
+                W = self._get_w(eff_alt, fov)
                 val = max(0.0, W * (1 - overlap / 100))
                 self.result_value.setText(f"{val:.1f} {unit_str}")
                 
@@ -259,20 +273,22 @@ class OverlapCalculatorApp(QMainWindow):
                     W = spacing / (1 - overlap / 100)
                     fov_rad = math.radians(fov)
                     if fov_rad == 0: val = float('inf')
-                    else: val = max(0.0, W / (2 * math.tan(fov_rad / 2)))
+                    else: 
+                        safe_agl = max(0.0, W / (2 * math.tan(fov_rad / 2)))
+                        val = safe_agl + feat_h
                 if val == float('inf'):
                     self.result_value.setText("Impossible")
                 else:
                     self.result_value.setText(f"{val:.1f} {unit_str}")
                     
             elif idx == 3:  # Solve FOV
-                if overlap >= 100 or alt == 0: val = 180.0
+                if overlap >= 100 or eff_alt <= 0: val = 180.0
                 else:
                     W = spacing / (1 - overlap / 100)
-                    if W / (2 * alt) > 1000: # Effectively near 180 deg
+                    if W / (2 * eff_alt) > 1000: # Effectively near 180 deg
                         val = 180.0
                     else:
-                        fov_rad = 2 * math.atan(W / (2 * alt))
+                        fov_rad = 2 * math.atan(W / (2 * eff_alt))
                         val = math.degrees(fov_rad)
                 self.result_value.setText(f"{val:.1f} °")
                 
