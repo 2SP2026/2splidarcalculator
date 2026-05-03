@@ -98,7 +98,7 @@ class OverlapCalculatorApp(QMainWindow):
         
         # --- Top: Unit Selection ---
         unit_group = QGroupBox("Measurement Unit")
-        unit_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid #bdc3c7; border-radius: 6px; margin-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; top: -8px; }")
+        unit_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid #bdc3c7; border-radius: 6px; margin-top: 16px; padding-top: 8px; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 10px; padding: 0 3px; }")
         unit_layout = QHBoxLayout(unit_group)
         self.radio_meter = QRadioButton("Meters (m)")
         self.radio_meter.setChecked(True)
@@ -128,7 +128,7 @@ class OverlapCalculatorApp(QMainWindow):
         
         # --- Input Sliders ---
         self.inputs_group = QGroupBox("Input Parameters")
-        self.inputs_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid #bdc3c7; border-radius: 6px; margin-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; top: -8px; }")
+        self.inputs_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid #bdc3c7; border-radius: 6px; margin-top: 16px; padding-top: 8px; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 10px; padding: 0 3px; }")
         inputs_layout = QVBoxLayout(self.inputs_group)
         inputs_layout.setSpacing(15)
         
