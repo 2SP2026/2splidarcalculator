@@ -103,14 +103,22 @@ Three issues were encountered during Windows exe distribution and resolved:
 
 > **Key lesson:** Always test the frozen exe on a **clean machine** (no Python/dev tools installed) before distributing. Build-machine success does not guarantee tester-machine success.
 
-## Next Steps (Session 7)
+### Session 7 — Standalone Overlap Calculator & Feature Height ✅
+- **Standalone Tool:** Created `standalone_overlap_calculator.py`, a single-file, self-contained PySide6 GUI tool specifically for calculating LiDAR flight line spacing, altitude, FOV, and required overlap.
+- **Dynamic Solving Engine:** Implemented a real-time reactive model where users can pick a target variable to solve for. The GUI automatically hides the solved variable's slider and calculates its value instantly when other parameters are adjusted.
+- **Unit Toggling:** Integrated robust global toggles for switching between Meters and Feet, automatically recalculating and scaling ranges.
+- **Safety Overlap & Feature Height:** Augmented the basic swath overlap math with a `Feature Height` parameter. The math engine now uses an "Effective AGL" (`AGL - Feature Height`) to compute the **Safety Overlap** at the top of the canopy rather than bare earth, guaranteeing adequate coverage for tall features like trees.
+- **Dual Display Result Panel:** Upgraded the result panel to display a side-by-side presentation: it highlights the primary calculated result (e.g., Required Altitude) while simultaneously revealing the consequential `Ground Overlap (Bare Earth)` underneath based on the user's settings.
+- **One-File Executable:** Configured and ran PyInstaller in `--onefile --windowed` mode, producing `Drone_LiDAR_Overlap_Calculator.exe` (approx 47 MB). Committed the `.spec` file to version control for reproducible builds.
+
+## Next Steps (Session 8)
 
 1. **Additional Calculators:**
-   - Port FOV / AGL estimation calculator.
+   - Integrate the Overlap Calculator into the main `2SP-LiDAR-Studio` suite (`calculator_panel.py`) alongside NPD, GSD, and Horizontal Error tools.
 2. **Testing:**
    - Integration tests for sensor manager CRUD operations.
    - GUI smoke tests with `pytest-qt`.
 3. **Polish:**
    - Active sidebar button visual indicator.
    - Keyboard shortcuts for navigation.
-   - App icon for the Windows executable.
+   - App icon for the Windows executables.
