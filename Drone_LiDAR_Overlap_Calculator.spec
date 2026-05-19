@@ -36,3 +36,10 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+
+app = BUNDLE(
+    exe,
+    name='Drone_LiDAR_Overlap_Calculator.app',
+    icon=None,
+    bundle_identifier=None,
+)
